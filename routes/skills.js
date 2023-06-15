@@ -34,7 +34,7 @@ router.route("/").get(async (req, res) => {
     });
   }
 
-  return res.render("skills/skillsHome", {
+  res.render("skills/skillsHome", {
     title: "Skills Home",
     h1: "Skills Home",
     Id: req.session.user.userId,
@@ -60,7 +60,7 @@ router
         img: "https://http.dog/401.jpg",
       });
     }
-    return res.render("skills/skillsNewPost", {
+    res.render("skills/skillsNewPost", {
       title: "New Post",
       h1: "New Post",
       Id: req.params.userId,
@@ -99,7 +99,7 @@ router
         postTitle: postTitle,
         article: article,
         interest: interest,
-        url: url,
+        videoUrl: url,
         error: error,
       });
     }
@@ -114,7 +114,7 @@ router
         postTitle: postTitle,
         article: article,
         interest: interest,
-        url: url,
+        videoUrl: url,
         error: error,
       });
     }
@@ -129,21 +129,13 @@ router
         postTitle: postTitle,
         article: article,
         interest: interest,
-        url: url,
+        videoUrl: url,
         error: error,
       });
     }
 
     try {
       url = validations.checkVideoUrl(url, "Video link");
-      url = url.replace(
-        /(\http|https)\:\/\/(www)\.(youtube)\.(com)\/(watch)\?(v=)/gi,
-        "https://www.youtube.com/embed/"
-      );
-      url = url.replace(
-        /(\http|https)\:\/\/(youtu\.be)\//gi,
-        "https://www.youtube.com/embed/"
-      );
     } catch (error) {
       return res.status(400).render("skills/skillsNewPost", {
         title: "New Post",
@@ -152,11 +144,10 @@ router
         postTitle: postTitle,
         article: article,
         interest: interest,
-        url: url,
+        videoUrl: url,
         error: error,
       });
     }
-
     try {
       interest = validations.checkTags(interest, "Interest");
     } catch (error) {
@@ -167,7 +158,7 @@ router
         postTitle: postTitle,
         article: article,
         interest: interest,
-        url: url,
+        videoUrl: url,
         error: error,
       });
     }
@@ -188,7 +179,7 @@ router
 router
   .route("/search/api")
   .get(async (req, res) => {
-    return res.render("skills/skillsApi", {
+    res.render("skills/skillsApi", {
       title: "API Search",
       h1: "API Search",
       Id: req.session.user.userId,
@@ -278,14 +269,15 @@ router
         errorsList = errorsList.push(error);
       });
     if (errorsList.length > 0)
-      return res.render("skills/skillsApi", {
+      res.render("skills/skillsApi", {
         title: "API Search",
         h1: "API Search",
         errorsList: errorsList,
         job_title: job_title,
         location: location,
       });
-    return res.render("skills/skillsApi", {
+    res.render("skills/skillsApi", {
+      Id: req.session.user.userId,
       title: "API Search",
       h1: "API Search",
       jobSearch: jobSearch,

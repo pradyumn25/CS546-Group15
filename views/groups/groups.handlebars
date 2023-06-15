@@ -1,12 +1,32 @@
 
+
+    <link rel="stylesheet" href="/public/css/group-details.css" />
+
 {{#*inline "title"}}
   Group Master Page
 {{/inline}}
 <h1>Groups</h1>
-<h3>Below are all the groups that you have the option of joining!! What are you waiting for, check them out!</h3>
-  <ol>
-{{#each groups}}
-<li><a href="groups/{{this._id}}">{{this.name}}</a></li>
-{{/each}}
-  </ol>
-<a class="search-again" href="/">Back to Home Page</a>
+<p>Would you like to create a new group?</p>
+<a class="action-button btn btn-primary" href="/groups/create">Create Group!</a>
+
+<p>You can check out these existing groups if you like!</p>
+
+<div class="container">
+  <div class="row">
+    {{#each groups}}
+    <div class="col-md-4">
+      <div class="card mb-4">
+<img src="/public/images/download.png" alt="{{this.name}} image" class="card-img-top small-square">
+        <div class="card-body">
+          <p class="card-title">{{this.name}}</p>
+          <p class="card-text">{{this.description}}</p>
+          <p class="card-text">Members: {{this.numOfUsers}}</p>
+          <a href="groups/{{this._id}}" class="btn btn-primary">Visit Group</a>
+        </div>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</div>
+
+<a class="search-again btn btn-secondary" href="/">Back to Home Page</a>

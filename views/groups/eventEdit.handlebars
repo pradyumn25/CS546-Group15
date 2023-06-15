@@ -1,0 +1,59 @@
+<link rel="stylesheet" href="/css/group-details.css" />
+
+<div class="container">
+  <h1>Group Events</h1>
+  <div>
+    <a href="javascript:history.back();">Back to Group Page</a>
+
+    {{#each events}}
+      <div class="event">
+        <h2>{{title}}</h2>
+        {{#if image}}
+          <img src="data:image/png;base64,{{image}}" alt="Event Image" style="width: 200px; height: auto;" />
+        {{/if}}
+
+       <form
+  action="/groups/{{../_id}}/eventEdit/{{_id}}"
+  method="POST"
+  class="event-edit-form"
+>
+          <div class="form-group">
+            <label for="title-{{_id}}">Title</label>
+            <input
+              type="text"
+              name="title"
+              id="title-{{_id}}"
+              class="title form-control"
+              value="{{title}}"
+            />
+          </div>
+          <div class="form-group">
+            <label for="eventDate-{{_id}}">Event Date</label>
+            <input
+              type="datetime-local"
+              name="eventDate"
+              id="eventDate-{{_id}}"
+              class="eventDate form-control"
+              value="{{eventDate}}"
+            />
+          </div>
+          <div class="form-group">
+            <label for="description-{{_id}}">Description</label>
+            <textarea
+              name="description"
+              id="description-{{_id}}"
+              class="description form-control"
+            >{{description}}</textarea>
+          </div>
+          <div class="form-group">
+          </div>
+          <input type="submit" value="Save" class="btn btn-primary" />
+        </form>
+      </div>
+    {{/each}}
+  </div>
+</div>
+<div id="error"></div>
+<script src="/public/js/eventEdit.js"></script>
+
+{{message}}

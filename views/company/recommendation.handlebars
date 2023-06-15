@@ -1,0 +1,44 @@
+<div class="main-jobs-main">
+
+  
+
+    <h1> Recommendations </h1>
+    
+    <span id="errorDisplay" > {{error}} </span>
+
+    {{#each jobs}}
+
+
+            <div class="main-jobs">
+
+                <div class="jobId">
+                    Job Id : {{{ this._id }}}
+                </div>
+                <div class="JobTitle">
+                    Job Title : {{{ this.jobTitle }}}
+                </div>
+
+                <div class="skills">
+                    Skills : {{{ this.skills }}}
+                </div>
+
+                <div class="salary">
+                    Salary : {{{ this.salary }}}
+                </div>
+
+                <div class="location">
+                    Location : {{{ this.location }}}
+                </div>
+
+                <div class="description">
+                    Description : {{{ this.description }}}
+                </div>
+
+            </div>
+            
+    
+    {{/each}}
+
+</div>
+
+{{!-- TODO : TOTALLY, XSS, AND CLIENT SIDE, STATUS CODE --}}

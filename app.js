@@ -13,6 +13,8 @@ import { groupActivityData, userData } from "./data/index.js";
 import * as messageData from "./data/messages.js";
 import * as userJobHistoryData from "./data/userJobHistory.js";
 import * as groupActivityDataFunctions from "./data/groupActivity.js";
+import * as groupEventData from "./data/groupEvents.js";
+import usersData from "./data/user.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -52,8 +54,11 @@ app.engine("handlebars", exphbs.engine({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 
 // Authorizing and authenticating the routes
+
 app.use("/login", (req, res, next) => {
   if (req.session && req.session.user) {
+    if (req.session.user.candidateType === "Student") return res.redirect("/");
+    else return res.redirect("/company");
     return res.redirect("/");
   } else {
     next();
@@ -78,9 +83,10 @@ app.use("/company", (req, res, next) => {
     if (req.session.user.candidateType === "Company") {
       next();
     } else {
-      return res.render("Auth/login", {
-        error: "You Do not have Access for this page",
-        title: "Login",
+      return res.render("error", {
+        error:
+          "You Do not have Access for this page logout and login with an authenticated user.",
+        title: "Error",
       });
     }
   }
@@ -108,6 +114,27 @@ app.use("/skills", (req, res, next) => {
   next();
 });
 
+app.use("/referral", (req, res, next) => {
+  if (
+    !req.session.user ||
+    (req.session.user.candidateType !== "Student" &&
+      req.session.user.candidateType !== "Company")
+  ) {
+    return res.redirect("/login");
+  }
+  next();
+});
+
+app.post("/referral/post/:userid/postId/:id/edit", (req, res, next) => {
+  req.method = "patch";
+  next();
+});
+
+app.post("/referral/post/:userid/postId/:id/remove", (req, res, next) => {
+  req.method = "delete";
+  next();
+});
+
 app.use("/socialmediaposts", (req, res, next) => {
   if (
     !req.session.user ||
@@ -124,6 +151,36 @@ app.post("/socialmediaposts/post/:userid/postId/:id/edit", (req, res, next) => {
   next();
 });
 
+app.post(
+  "/socialmediaposts/post/:userid/postId/:id/remove",
+  (req, res, next) => {
+    req.method = "delete";
+    next();
+  }
+);
+
+app.post("/company/updateCompany/:name", (req, res, next) => {
+  req.method = "patch";
+  next();
+});
+
+app.get("/company/delete/:id", (req, res, next) => {
+  req.method = "delete";
+  next();
+});
+
+///jobUpdate/:id
+
+app.get("/company/jobDelete/:id", (req, res, next) => {
+  req.method = "delete";
+  next();
+});
+
+app.post("/company/jobUpdate/:id", (req, res, next) => {
+  req.method = "patch";
+  next();
+});
+
 app.use("/referral", (req, res, next) => {
   if (
     !req.session.user ||
@@ -133,6 +190,14 @@ app.use("/referral", (req, res, next) => {
     return res.redirect("/login");
   }
   next();
+});
+
+app.get("/allCompany", (req, res, next) => {
+  if (!req.session || !req.session.user) {
+    return res.redirect("login");
+  } else {
+    next();
+  }
 });
 
 app.use("/company/job", (req, res, next) => {
@@ -165,7 +230,7 @@ app.use("/groups", (req, res, next) => {
   next();
 });
 
-app.use("/profile", (req, res, next) => {
+app.use("/groups", (req, res, next) => {
   if (
     !req.session.user ||
     (req.session.user.candidateType !== "Student" &&
@@ -177,6 +242,14 @@ app.use("/profile", (req, res, next) => {
 });
 
 app.use("/logout", (req, res, next) => {
+  if (req.session && !req.session.user) {
+    return res.redirect("/login");
+  } else {
+    next();
+  }
+});
+
+app.use("/recommendation", (req, res, next) => {
   if (req.session && !req.session.user) {
     return res.redirect("/login");
   } else {
@@ -203,10 +276,33 @@ app.use("/", (req, res, next) => {
   return next();
 });
 
-configRoutes(app);
+// export function checkProfileAccess(req, res, next) {
+//   const userId = req.params.id;
+//   const currentUserId = req.session.user.userId;
 
-// let jobHistory = await userJobHistoryData.getAll("643b2afed6271e8e940ad58e");
-// console.log(jobHistory);
+//   if (userId !== currentUserId) {
+//     res.status(403).render("./error", {
+//       class: "error",
+//       title: "Error Page",
+//       errorMessage: `You do not have permission to access this page.`,
+//     });
+//     return;
+//   }
+
+//   next();
+// }
+
+// const joe = await usersData.createUser(
+//   "Joeseph",
+//   "Marks",
+//   20,
+//   "jmarsks@ggg.edu",
+//   "Test1234$",
+//   "Student"
+// );
+
+// console.log(joe._id);
+configRoutes(app);
 
 app.listen(3000, () => {
   console.log("We've now got a server!");

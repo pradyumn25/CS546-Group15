@@ -2,7 +2,23 @@ import { ObjectId, Binary } from "mongodb";
 import { users } from "../config/mongoCollections.js";
 import validations from "../helpers.js";
 import bcrypt from "bcryptjs";
-
+import passwordValidator from "password-validator";
+// import { userData } from "./index.js";
+let rules = new passwordValidator();
+rules
+  .is()
+  .min(8)
+  .is()
+  .max(100)
+  .has()
+  .uppercase()
+  .has()
+  .digits()
+  .has()
+  .not()
+  .spaces()
+  .has()
+  .symbols();
 const exportedMethods = {
   async getAllUser() {
     //get all users data from collectoin
@@ -12,6 +28,16 @@ const exportedMethods = {
       ele._id = ele._id.toString();
     }
     return userList;
+  },
+
+  async getUserByEmail(email) {
+    email = validations.checkEmail(email);
+    const userCollection = await users();
+
+    let userDetails = await userCollection.findOne({ email: email });
+
+    if (!userDetails) throw "Error :No user found";
+    else return userDetails;
   },
 
   async getUserById(
@@ -29,17 +55,25 @@ const exportedMethods = {
     return user;
   },
 
-    async createUser(fname, lname, age, email, password, candidateType) {
+  async createUser(fname, lname, age, email, password, candidateType) {
     //Validations
-    fname = validations.checkString(fname, "First name");
-    lname = validations.checkString(lname, "Last name");
+    fname = validations.validateNameReturn(fname);
+    lname = validations.validateNameReturn(lname);
     candidateType = validations.checkString(candidateType, "Candidate Type");
     age = validations.isAge(Number(age));
     const userCollection = await users();
+
+    email = validations.checkEmail(email, "email"); //check email is valid
+    if (!rules.validate(password)) throw "Error : Invalid Password";
+    password = validations.checkString(password, "Password");
+    
     const ifAlready = await userCollection.findOne({ email: email });
     if (ifAlready) throw "Error: User Email is already registered"; //check email is existed in db or not
-    email = validations.checkEmail(email, "email"); //check email is valid
-    password = validations.checkString(password, "Password");
+    
+
+
+    if (candidateType !== "Student" && candidateType !== "Company")
+      throw "Error : Candidate Type can only be Strictly 'Student' or 'Company'";
 
     password = await bcrypt.hash(password, 10);
 
@@ -49,10 +83,11 @@ const exportedMethods = {
     let aboutMe = "";
     let locationState = "";
     let image = "";
+    let status = "";
     let university = "";
     let collegeMajor = "";
     let gitHubUserName = "";
-    let interestArea = [];
+    let skills = [];
     let experience = 0;
     let jobHistory = [];
     let seekingJob = [];
@@ -64,48 +99,109 @@ const exportedMethods = {
     let collectedPost = [];
     let socialPost = [];
 
-    const newCreateUser = await userCollection.insertOne({
-      fname,
-      lname,
-      email,
-      password,
-      age: age,
-      gender,
-      candidateType,
-      headerDescription,
-      aboutMe,
-      locationState,
-      image,
-      university,
-      collegeMajor,
-      gitHubUserName,
-      interestArea,
-      experience,
-      jobHistory,
-      seekingJob,
-      connections,
-      group,
-      createdAt,
-      updatedAt,
-      socialPost,
-      likedPost,
-      collectedPost,
-    });
-    if (!newCreateUser.insertedId) throw `Error: Insert failed!!`;
-    const returnUser = await this.getUserById(
-      newCreateUser.insertedId.toString()
-    );
-    returnUser._id = returnUser._id.toString();
-    return returnUser;
-  },
+    if (candidateType === "Student") {
+      const newCreateUser = await userCollection.insertOne({
+        fname,
+        lname,
+        email,
+        password,
+        age: age,
+        gender,
+        candidateType,
+        headerDescription,
+        aboutMe,
+        locationState,
+        image,
+        status,
+        university,
+        collegeMajor,
+        gitHubUserName,
+        skills,
+        experience,
+        jobHistory,
+        seekingJob,
+        connections,
+        group,
+        createdAt,
+        updatedAt,
+        socialPost,
+        likedPost,
+        collectedPost,
+      });
 
+      if (!newCreateUser.insertedId) throw `Error: Insert failed!!`;
+      const returnUser = await this.getUserById(
+        newCreateUser.insertedId.toString()
+      );
+      returnUser._id = returnUser._id.toString();
+      return returnUser;
+    } else {
+      let referralPosts = [];
+      const newCreateUser = await userCollection.insertOne({
+        fname,
+        lname,
+        email,
+        password,
+        age: age,
+        gender,
+        candidateType,
+        companyName: "",
+        referralPosts,
+        headerDescription,
+        aboutMe,
+        locationState,
+        image,
+        university,
+        collegeMajor,
+        gitHubUserName,
+        skills,
+        experience,
+        jobHistory,
+        seekingJob,
+        connections,
+        group,
+        createdAt,
+        updatedAt,
+        socialPost,
+        likedPost,
+        collectedPost,
+      });
+
+      if (!newCreateUser.insertedId) throw `Error: Insert failed!!`;
+      const returnUser = await this.getUserById(
+        newCreateUser.insertedId.toString()
+      );
+      returnUser._id = returnUser._id.toString();
+      return returnUser;
+    }
+  },
+  async updateUsersCompany(
+    userId,
+    updateData // update user's profile
+  ) {
+    const userCollection = await users();
+    const updateInfo = await userCollection.findOneAndUpdate(
+      { _id: new ObjectId(userId) },
+      { $set: { companyName: updateData } },
+      { returnDocument: "after" }
+    );
+    if (updateInfo.lastErrorObject.n === 0)
+      throw [
+        404,
+        `Error: Update failed, could not find a user with id of ${userId}`,
+      ];
+    updateInfo.value._id = updateInfo.value._id.toString();
+    return await updateInfo.value;
+  },
   async updateUsers(
     userId,
     updateData // update user's profile
   ) {
     userId = validations.checkId(userId);
-    let fname = validations.checkString(updateData.fname, "First Name");
-    let lname = validations.checkString(updateData.lname, "Last Name");
+    rules.validate(updateData.password);
+
+    let fname = validations.validateNameReturn(updateData.fname);
+    let lname = validations.validateNameReturn(updateData.lname);
     let email = validations.checkEmail(updateData.email, "Email");
     let password = validations.checkString(updateData.password, "Password");
     let age = validations.isAge(updateData.age, "age");
@@ -120,7 +216,8 @@ const exportedMethods = {
       "Header Description"
     );
     let aboutMe = validations.checkString(updateData.aboutMe, "AboutMe");
-    let image;
+    let image = updateData.image;
+    let status = updateData.status;
     let university = validations.checkString(
       updateData.university,
       "University"
@@ -129,18 +226,21 @@ const exportedMethods = {
       updateData.collegeMajor,
       "Major"
     );
-    let interestArea = validations.checkStringArray(
-      updateData.interestArea,
-      "Interest area"
-    );
+    let skills = updateData.skills;
+
+    if (typeof updateData.skills === "string") {
+      skills = validations.checkString(skills, "Skills");
+    } else {
+      skills = validations.checkStringArray(updateData.skills, "Interest area");
+    }
+    // let skills = validations.checkStringArray(
+    //   updateData.skills,
+    //   "Interest area"
+    // );
     let experience = validations.checkExperience(
       updateData.experience,
       "Experience year"
-    ); // experience year from 0 to 80
-    let jobHistory = validations.checkStringArray(
-      updateData.jobHistory,
-      "Job History"
-    );
+    ); // experience year from 0 to 80 TO DO - NEED TO UPDATE THIS CHECK - ARRY OF OBJECTS
     let seekingJob = validations.checkStringArray(
       updateData.seekingJob,
       "Seeking job"
@@ -158,6 +258,11 @@ const exportedMethods = {
       updateData.updatedAt,
       "Updated date"
     ); // updated date can be modified
+
+    let gitHubUserName = updateData.gitHubUserName.trim();
+    if (typeof gitHubUserName !== "string" || gitHubUserName.length === 0) {
+      throw new Error("Github username must be a string that is not empty");
+    }
     const userCollection = await users();
     let oldInfo = await this.getUserById(userId);
     let oldLikedPost = oldInfo.likedPost;
@@ -174,11 +279,12 @@ const exportedMethods = {
       aboutMe: aboutMe,
       locationState: locationState,
       image: image,
+      status: status,
       university: university,
       collegeMajor: collegeMajor,
-      interestArea: interestArea,
+      gitHubUserName: gitHubUserName,
+      skills: skills,
       experience: experience,
-      jobHistory: jobHistory,
       seekingJob: seekingJob,
       connections: connections,
       group: group,
@@ -339,6 +445,21 @@ const exportedMethods = {
     if (!user) throw `Error: No user found with the given id: ${userId}`;
 
     return { firstName: user.fname, lastName: user.lname };
+  },
+
+  async getUserSkills(id) {
+    if (!id || !ObjectId.isValid(id)) {
+      throw "Error : Invalid Id";
+    }
+
+    const userCollection = await users();
+    let getUserSkills = await userCollection.findOne(
+      { _id: new ObjectId(id) },
+      { projection: { skills: 1 } }
+    );
+    if (!getUserSkills) throw "Error : Users interest area is empty";
+
+    return getUserSkills;
   },
 };
 

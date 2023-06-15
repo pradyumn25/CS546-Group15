@@ -59,7 +59,7 @@ const exportedMethods = {
   async addPost (userId, content)
   {
     userId = validations.checkId(userId);
-    content = validations.checkString(content, "post content");
+    content = validations.checkPost(content, "post content");
     const newPost = {
       userId: userId,
       content: content,
@@ -89,7 +89,7 @@ const exportedMethods = {
   async updatePost (postId, content)
   {
     postId = validations.checkId(postId);
-    content = validations.checkString(content, "Content");
+    content = validations.checkPost(content, "Content");
     const networkCollection = await network();
     const updateInfo = await networkCollection.findOneAndUpdate(
       { _id: new ObjectId(postId) },
@@ -167,7 +167,7 @@ const exportedMethods = {
   {
     postId = validations.checkId(postId);
     userId = validations.checkId(userId);
-    comments = validations.checkString(comments, "Comments");
+    comments = validations.checkPost(comments, "Comments");
     const userName = await usersData.getUserById(userId);
 
     const newComments = {

@@ -1,33 +1,149 @@
-<link rel="stylesheet" href="/css/group-details.css">
+<link rel="stylesheet" href="../../public/css/group-details.css" />
 
 <div class="container">
-  <h1>Group Details</h1>
+  <h1>Edit Profile</h1>
   <div>
     <a href="javascript:history.back();">Back to Search Results</a>
+    <div id="error" style="color: red; font-weight: bold;"></div>
 
-    {{!-- {{#if image}}
-    <img src="data:image/png;base64,{{image}}" alt="Group Image" />
-    {{/if}} --}}
+    <form
+      action="/profile/{{_id}}/updateprofile"
+      method="POST"
+      enctype="multipart/form-data"
+      id="profile-edit-form"
+    >
+      <!-- First Name -->
+      <div class="form-profile">
+        <label for="fname">First Name</label>
+        <input
+          type="text"
+          name="fname"
+          id="fname"
+          class="form-control"
+          value="{{fname}}"
+        />
+      </div>
 
-    <form action="/profile/{{_id}}/updateimage" method="POST" enctype="multipart/form-data">
-      <div class="custom-file mb-3">
-        <input type="file" name="image" id="file" class="custom-file-input">
-        <label for="file" class="custom-file-label">Choose File</label>
+      <!-- Last Name -->
+      <div class="form-profile">
+        <label for="lname">Last Name</label>
+        <input
+          type="text"
+          name="lname"
+          id="lname"
+          class="form-control"
+          value="{{lname}}"
+        />
       </div>
-      <input type="submit" value="Submit" class="btn btn-primary btn-block">
-    </form>
-    <form action="/profile/{{_id}}/updatename" method="POST">
-      <div class="custom-file mb-3">
-        <input type="text" name="name" id="file" class="custom-file-input">
-        <label for="name" class="custom-file-label">Please update name</label>
+
+      <!-- Gender -->
+      <div class="form-profile">
+        <label for="gender">Gender</label>
+        <select name="gender" class="form-control" id="gender">
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Prefer not to say">Prefer not to say</option>
+        </select>
       </div>
-      <input type="submit" value="Submit" class="btn btn-primary btn-block">
+
+      <!-- Status -->
+      <div class="form-profile">
+        <label for="status">Status</label>
+        <input
+          type="text"
+          name="status"
+          id="status"
+          class="form-control"
+          value="{{status}}"
+        />
+      </div>
+
+      <!-- Header Description -->
+      <div class="form-profile">
+        <label for="headerDescription">Header Description</label>
+        <textarea
+          name="headerDescription"
+          id="headerDescription"
+          class="form-control"
+        >{{headerDescription}}</textarea>
+      </div>
+
+      <!-- github -->
+      <div class="form-profile">
+        <label for="gitHubUserName">GitHub UserName</label>
+        <input
+          type="text"
+          name="gitHubUserName"
+          id="gitHubUserName"
+          class="form-control"
+          value="{{gitHubUserName}}"
+        />
+      </div>
+
+      <!-- skills -->
+      <div class="form-profile">
+
+        <label for="skills">Skills Required - Two skills are required</label>
+        <select multiple="multiple" id="skills" name="skills">
+
+          <option value="Python">Python</option>
+          <option value="C++">C++</option>
+          <option value="JavaScript">JavaScript</option>
+          <option value="NodeJS">NodeJS</option>
+          <option value="React">React</option>
+
+        </select>
+
+      </div>
+
+      <!-- About Me -->
+      <div class="form-profile">
+        <label for="aboutMe">About Me</label>
+        <textarea
+          name="aboutMe"
+          id="aboutMe"
+          class="form-control"
+        >{{aboutMe}}</textarea>
+      </div>
+
+      <!-- Location State -->
+      <div class="form-profile">
+        <label for="locationState">Location State</label>
+        <input
+          type="text"
+          name="locationState"
+          id="locationState"
+          class="form-control"
+          value="{{locationState}}"
+        />
+      </div>
+
+      <!-- University -->
+      <div class="form-profile">
+        <label for="university">University</label>
+        <input
+          type="text"
+          name="university"
+          id="university"
+          class="form-control"
+          value="{{university}}"
+        />
+      </div>
+
+      <!-- College Major -->
+      <div class="form-profile">
+        <label for="collegeMajor">College Major</label>
+        <input
+          type="text"
+          name="collegeMajor"
+          id="collegeMajor"
+          class="form-control"
+          value="{{collegeMajor}}"
+        />
+      </div>
+
+      <input type="submit" value="Submit" class="btn btn-primary btn-block" />
     </form>
-    <form action="/profile/{{_id}}/updategithubusername" method="POST">
-  <div class="custom-file mb-3">
-    <input type="text" name="gitHubUserName" id="gitHubUserName" class="custom-file-input">
-    <label for="gitHubUserName" class="custom-file-label">Please update GitHub Username</label>
   </div>
-  <input type="submit" value="Submit" class="btn btn-primary btn-block">
-</form>
-  </div>
+</div>
+<script src="/public/js/profileEdit.js"></script>

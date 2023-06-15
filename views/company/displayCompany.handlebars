@@ -6,8 +6,26 @@
 
     <h1>{{companyData.companyName}}</h1>
 
+    {{!-- {{ #if companyData.imgSrc }}
+
     <img
-      src=/public/uploads/{{companyData.imgSrc}}
+      src=/public/uploads/{{ companyData.imgSrc }}
+      alt="Company Logo"
+      id="my-company-src"
+    >
+
+     {{ else }}
+
+    <img
+      src = '/public/uploads/no_image.png'
+      alt="Company Logo"
+      id="my-company-src"
+    >
+
+    {{ /if }} --}}
+
+    <img
+      src=/public/uploads/{{ companyData.imgSrc }}
       alt="Company Logo"
       id="my-company-src"
     >
@@ -26,8 +44,16 @@
       Description : {{companyData.description}}
     </div>
 
+    <div class="perks"> 
+      Perks : {{companyData.perks}}
+    </div>
+
+    <div class="goals"> 
+      Goals : {{companyData.goals}}
+    </div>
+
     <div class="editCompanyDetails">
-      <a href=/company/dataUpdate/{{companyData.companyName}}>Edit The Details
+      <a href="/company/dataUpdate/{{companyData.companyName}}">Edit The Details
       </a>
     </div>
 
@@ -36,8 +62,13 @@
     </div>
 
     <div class="viewJobs">
-      <a href=/company/viewJob/{{companyData.companyName}}>View Jobs</a>
+      <a href="/company/viewJob/{{companyData.companyName}}">View Jobs</a>
     </div>
+
+    <div class="deleteCompany">
+      <a href=/company/delete/{{companyData._id}}>Delete Company</a>
+    </div>
+
   </div>
 
 </div>
